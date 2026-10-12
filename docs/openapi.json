@@ -1,1 +1,1052 @@
-{"components":{"schemas":{"ApiResponse":{"properties":{"code":{"description":"0=成功，17=非法请求，5=参数错误，2=登录失效","type":"integer"},"data":{"type":"object"},"msg":{"type":"string"}},"type":"object"},"OutlineNode":{"properties":{"children":{"items":{"$ref":"#/components/schemas/OutlineNode"},"type":"array"},"done":{"type":"boolean"},"id":{"type":"string"},"note":{"description":"备注 HTML","type":"string"},"task":{"type":"boolean"},"text":{"description":"HTML 字符串，支持 b/i/s/u/a/br","type":"string"}},"type":"object"}},"securitySchemes":{"jwtToken":{"description":"从浏览器 localStorage 获取 mubu.com 的 Jwt-Token，或调 phone_login 获取","in":"header","name":"Jwt-Token","type":"apiKey"}}},"info":{"description":"幕布大纲笔记内部接口逆向文档。幕布无公开 API，以下均为逆向自 Web 端/桌面端/第三方项目的内部接口，随时可能变更。\n\n来源：jackwener/OpenCLI、liuboacean/mubu-integration、cnfjlhj/cli-anything-mubu、qinze889/mubu_syn 源码 + 浏览器抓包（2026-10-12）。","title":"幕布 (mubu.com) 内部 API","version":"1.0.0"},"openapi":"3.0.3","paths":{"/v3/api/colla/events":{"post":{"description":"网页端真实写接口。需带请求头 x-reg-entrance: https://mubu.com/app/edit/home/{doc_id}。memberId 可用登录返回的 userId。","parameters":[{"in":"header","name":"x-reg-entrance","required":true,"schema":{"type":"string"}}],"requestBody":{"content":{"application/json":{"schema":{"properties":{"documentId":{"type":"string"},"events":{"items":{"type":"object"},"type":"array"},"memberId":{"type":"string"},"type":{"default":"CHANGE","type":"string"},"version":{"description":"baseVersion","type":"integer"}},"required":["memberId","type","version","documentId","events"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"data.latestVersion"}},"summary":"推送文档变更（写操作）","tags":["实时协同"]}},"/v3/api/colla/latestEvents":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"documentId":{"type":"string"},"from":{"type":"integer"},"to":{"type":"integer"}},"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"变更集"}},"summary":"补拉缺失变更集","tags":["实时协同"]}},"/v3/api/colla/register":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"ticket"}},"summary":"获取 WebSocket ticket","tags":["实时协同"]}},"/v3/api/document/edit/get":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"docId":{"type":"string"},"isFromDocDir":{"default":true,"type":"boolean"},"password":{"default":"","type":"string"}},"required":["docId"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"data: {name, definition(JSON字符串，需二次解析得 nodes), baseVersion}"}},"summary":"获取文档内容（含大纲树）","tags":["文档读写"]}},"/v3/api/document/get":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"docId":{"type":"string"}},"required":["docId"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"文档数据"}},"summary":"获取文档（轻量）","tags":["文档读写"]}},"/v3/api/document/get_doc_name":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"docId":{"type":"string"}},"required":["docId"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"data: {name}"}},"summary":"获取文档标题","tags":["文档读写"]}},"/v3/api/document/version/list":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{},"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"data: [{docId, version}]"}},"summary":"文档版本列表","tags":["文档读写"]}},"/v3/api/list/batch_delete":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"docs":{"items":{"type":"string"},"type":"array"},"folders":{"items":{"type":"string"},"type":"array"},"password":{"type":"string"}},"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"成功"}},"summary":"批量删除","tags":["列表/文件夹"]}},"/v3/api/list/copy_doc":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"id":{"type":"string"}},"required":["id"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"成功"}},"summary":"复制文档","tags":["列表/文件夹"]}},"/v3/api/list/create_doc":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"content":{"type":"string"},"folderId":{"type":"string"},"name":{"type":"string"}},"required":["name"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"data.doc.id"}},"summary":"新建文档","tags":["列表/文件夹"]}},"/v3/api/list/create_folder":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"folderId":{"description":"父文件夹 ID","type":"string"},"name":{"type":"string"}},"required":["name"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"data.folder.id"}},"summary":"新建文件夹","tags":["列表/文件夹"]}},"/v3/api/list/custom/drag":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"dst":{"description":"null=追加到末尾","nullable":true,"type":"string"},"folderId":{"description":"目标文件夹 ID","type":"string"},"src":{"items":{"properties":{"id":{"type":"string"},"type":{"enum":["doc","folder"],"type":"string"}},"type":"object"},"type":"array"}},"required":["src","folderId"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"成功"}},"summary":"移动文档/文件夹","tags":["列表/文件夹"]}},"/v3/api/list/delete_doc":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"id":{"type":"string"}},"required":["id"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"成功"}},"summary":"删除文档","tags":["列表/文件夹"]}},"/v3/api/list/delete_folder":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"id":{"type":"string"}},"required":["id"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"成功"}},"summary":"删除文件夹","tags":["列表/文件夹"]}},"/v3/api/list/get":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"folderId":{"description":"文件夹 ID，根目录填 0；recent=最近编辑","type":"string"},"source":{"description":"star=星标列表","type":"string"}},"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"data.folders + data.documents"}},"summary":"获取文档/文件夹列表","tags":["列表/文件夹"]}},"/v3/api/list/get_all_documents_page":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"page":{"default":1,"type":"integer"},"pageSize":{"default":200,"type":"integer"}},"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"data.documents 数组"}},"summary":"分页获取全部文档","tags":["列表/文件夹"]}},"/v3/api/list/rename_doc":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"documentId":{"type":"string"},"name":{"type":"string"}},"required":["documentId","name"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"成功"}},"summary":"重命名文档（注意字段名是 documentId）","tags":["列表/文件夹"]}},"/v3/api/list/rename_folder":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"folderId":{"description":"自身 ID，不能填 0","type":"string"},"id":{"type":"string"},"name":{"type":"string"}},"required":["id","folderId","name"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"成功"}},"summary":"重命名文件夹","tags":["列表/文件夹"]}},"/v3/api/list/search":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"keywords":{"type":"string"}},"required":["keywords"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"data.folders + data.documents（含命中数和片段）"}},"summary":"全文搜索","tags":["搜索"]}},"/v3/api/template/set_doc":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"docId":{"description":"模板文档 ID","type":"string"},"folderId":{"type":"string"}},"required":["docId"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"data: {docId, name}"}},"summary":"从模板创建文档","tags":["模板"]}},"/v3/api/user/current_user":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"用户信息"}},"summary":"获取当前用户","tags":["用户/鉴权"]}},"/v3/api/user/info":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"enhance":{"default":true,"type":"boolean"}},"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ApiResponse"}}},"description":"用户信息"}},"summary":"获取用户信息","tags":["用户/鉴权"]}},"/v3/api/user/phone_login":{"post":{"requestBody":{"content":{"application/json":{"schema":{"properties":{"callbackType":{"default":0,"type":"integer"},"password":{"type":"string"},"phone":{"type":"string"}},"required":["phone","password"],"type":"object"}}}},"responses":{"200":{"content":{"application/json":{"schema":{"allOf":[{"$ref":"#/components/schemas/ApiResponse"},{"properties":{"data":{"properties":{"id":{"description":"用户 ID，可作 colla memberId","type":"string"},"name":{"type":"string"},"token":{"description":"JWT Token","type":"string"}},"type":"object"}},"type":"object"}]}}},"description":"成功"}},"security":[],"summary":"手机号+密码登录","tags":["用户/鉴权"]}}},"security":[{"jwtToken":[]}],"servers":[{"description":"主 API","url":"https://api2.mubu.com"}],"tags":[{"description":"登录、用户信息","name":"用户/鉴权"},{"description":"文档列表、文件夹增删改查","name":"列表/文件夹"},{"description":"文档内容获取与版本","name":"文档读写"},{"description":"文档写入与协同同步","name":"实时协同"},{"description":"全文搜索","name":"搜索"},{"description":"从模板创建","name":"模板"}]}
+{
+  "components": {
+    "schemas": {
+      "ApiResponse": {
+        "properties": {
+          "code": {
+            "description": "0=成功，17=非法请求，5=参数错误，2=登录失效",
+            "type": "integer"
+          },
+          "data": {
+            "type": "object"
+          },
+          "msg": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "OutlineNode": {
+        "properties": {
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/OutlineNode"
+            },
+            "type": "array"
+          },
+          "done": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "note": {
+            "description": "备注 HTML",
+            "type": "string"
+          },
+          "task": {
+            "type": "boolean"
+          },
+          "text": {
+            "description": "HTML 字符串，支持 b/i/s/u/a/br",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "jwtToken": {
+        "description": "从浏览器 localStorage 获取 mubu.com 的 Jwt-Token，或调 phone_login 获取",
+        "in": "header",
+        "name": "Jwt-Token",
+        "type": "apiKey"
+      }
+    }
+  },
+  "info": {
+    "description": "幕布大纲笔记内部接口文档。幕布无公开 API，以下均为整理自 Web 端/桌面端的内部接口，随时可能变更。\n\n来源：jackwener/OpenCLI、liuboacean/mubu-integration、cnfjlhj/cli-anything-mubu、qinze889/mubu_syn 源码 + 浏览器抓包（2026-10-12）。",
+    "title": "幕布 (mubu.com) 内部 API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/v3/api/colla/events": {
+      "post": {
+        "description": "网页端真实写接口。需带请求头 x-reg-entrance: https://mubu.com/app/edit/home/{doc_id}。memberId 可用登录返回的 userId。",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-reg-entrance",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "documentId": {
+                    "type": "string"
+                  },
+                  "events": {
+                    "items": {
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "memberId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "default": "CHANGE",
+                    "type": "string"
+                  },
+                  "version": {
+                    "description": "baseVersion",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "memberId",
+                  "type",
+                  "version",
+                  "documentId",
+                  "events"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "data.latestVersion"
+          }
+        },
+        "summary": "推送文档变更（写操作）",
+        "tags": [
+          "实时协同"
+        ]
+      }
+    },
+    "/v3/api/colla/latestEvents": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "documentId": {
+                    "type": "string"
+                  },
+                  "from": {
+                    "type": "integer"
+                  },
+                  "to": {
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "变更集"
+          }
+        },
+        "summary": "补拉缺失变更集",
+        "tags": [
+          "实时协同"
+        ]
+      }
+    },
+    "/v3/api/colla/register": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "ticket"
+          }
+        },
+        "summary": "获取 WebSocket ticket",
+        "tags": [
+          "实时协同"
+        ]
+      }
+    },
+    "/v3/api/document/edit/get": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "docId": {
+                    "type": "string"
+                  },
+                  "isFromDocDir": {
+                    "default": true,
+                    "type": "boolean"
+                  },
+                  "password": {
+                    "default": "",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "docId"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "data: {name, definition(JSON字符串，需二次解析得 nodes), baseVersion}"
+          }
+        },
+        "summary": "获取文档内容（含大纲树）",
+        "tags": [
+          "文档读写"
+        ]
+      }
+    },
+    "/v3/api/document/get": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "docId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "docId"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "文档数据"
+          }
+        },
+        "summary": "获取文档（轻量）",
+        "tags": [
+          "文档读写"
+        ]
+      }
+    },
+    "/v3/api/document/get_doc_name": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "docId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "docId"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "data: {name}"
+          }
+        },
+        "summary": "获取文档标题",
+        "tags": [
+          "文档读写"
+        ]
+      }
+    },
+    "/v3/api/document/version/list": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "data: [{docId, version}]"
+          }
+        },
+        "summary": "文档版本列表",
+        "tags": [
+          "文档读写"
+        ]
+      }
+    },
+    "/v3/api/list/batch_delete": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "docs": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "folders": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "成功"
+          }
+        },
+        "summary": "批量删除",
+        "tags": [
+          "列表/文件夹"
+        ]
+      }
+    },
+    "/v3/api/list/copy_doc": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "成功"
+          }
+        },
+        "summary": "复制文档",
+        "tags": [
+          "列表/文件夹"
+        ]
+      }
+    },
+    "/v3/api/list/create_doc": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "folderId": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "data.doc.id"
+          }
+        },
+        "summary": "新建文档",
+        "tags": [
+          "列表/文件夹"
+        ]
+      }
+    },
+    "/v3/api/list/create_folder": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "folderId": {
+                    "description": "父文件夹 ID",
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "data.folder.id"
+          }
+        },
+        "summary": "新建文件夹",
+        "tags": [
+          "列表/文件夹"
+        ]
+      }
+    },
+    "/v3/api/list/custom/drag": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "dst": {
+                    "description": "null=追加到末尾",
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "folderId": {
+                    "description": "目标文件夹 ID",
+                    "type": "string"
+                  },
+                  "src": {
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "enum": [
+                            "doc",
+                            "folder"
+                          ],
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "src",
+                  "folderId"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "成功"
+          }
+        },
+        "summary": "移动文档/文件夹",
+        "tags": [
+          "列表/文件夹"
+        ]
+      }
+    },
+    "/v3/api/list/delete_doc": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "成功"
+          }
+        },
+        "summary": "删除文档",
+        "tags": [
+          "列表/文件夹"
+        ]
+      }
+    },
+    "/v3/api/list/delete_folder": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "成功"
+          }
+        },
+        "summary": "删除文件夹",
+        "tags": [
+          "列表/文件夹"
+        ]
+      }
+    },
+    "/v3/api/list/get": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "folderId": {
+                    "description": "文件夹 ID，根目录填 0；recent=最近编辑",
+                    "type": "string"
+                  },
+                  "source": {
+                    "description": "star=星标列表",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "data.folders + data.documents"
+          }
+        },
+        "summary": "获取文档/文件夹列表",
+        "tags": [
+          "列表/文件夹"
+        ]
+      }
+    },
+    "/v3/api/list/get_all_documents_page": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "page": {
+                    "default": 1,
+                    "type": "integer"
+                  },
+                  "pageSize": {
+                    "default": 200,
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "data.documents 数组"
+          }
+        },
+        "summary": "分页获取全部文档",
+        "tags": [
+          "列表/文件夹"
+        ]
+      }
+    },
+    "/v3/api/list/rename_doc": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "documentId": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "documentId",
+                  "name"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "成功"
+          }
+        },
+        "summary": "重命名文档（注意字段名是 documentId）",
+        "tags": [
+          "列表/文件夹"
+        ]
+      }
+    },
+    "/v3/api/list/rename_folder": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "folderId": {
+                    "description": "自身 ID，不能填 0",
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "folderId",
+                  "name"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "成功"
+          }
+        },
+        "summary": "重命名文件夹",
+        "tags": [
+          "列表/文件夹"
+        ]
+      }
+    },
+    "/v3/api/list/search": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "keywords": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "keywords"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "data.folders + data.documents（含命中数和片段）"
+          }
+        },
+        "summary": "全文搜索",
+        "tags": [
+          "搜索"
+        ]
+      }
+    },
+    "/v3/api/template/set_doc": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "docId": {
+                    "description": "模板文档 ID",
+                    "type": "string"
+                  },
+                  "folderId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "docId"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "data: {docId, name}"
+          }
+        },
+        "summary": "从模板创建文档",
+        "tags": [
+          "模板"
+        ]
+      }
+    },
+    "/v3/api/user/current_user": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "用户信息"
+          }
+        },
+        "summary": "获取当前用户",
+        "tags": [
+          "用户/鉴权"
+        ]
+      }
+    },
+    "/v3/api/user/info": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "enhance": {
+                    "default": true,
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            },
+            "description": "用户信息"
+          }
+        },
+        "summary": "获取用户信息",
+        "tags": [
+          "用户/鉴权"
+        ]
+      }
+    },
+    "/v3/api/user/phone_login": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "callbackType": {
+                    "default": 0,
+                    "type": "integer"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "phone",
+                  "password"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "properties": {
+                            "id": {
+                              "description": "用户 ID，可作 colla memberId",
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "token": {
+                              "description": "JWT Token",
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "成功"
+          }
+        },
+        "security": [],
+        "summary": "手机号+密码登录",
+        "tags": [
+          "用户/鉴权"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "jwtToken": []
+    }
+  ],
+  "servers": [
+    {
+      "description": "主 API",
+      "url": "https://api2.mubu.com"
+    }
+  ],
+  "tags": [
+    {
+      "description": "登录、用户信息",
+      "name": "用户/鉴权"
+    },
+    {
+      "description": "文档列表、文件夹增删改查",
+      "name": "列表/文件夹"
+    },
+    {
+      "description": "文档内容获取与版本",
+      "name": "文档读写"
+    },
+    {
+      "description": "文档写入与协同同步",
+      "name": "实时协同"
+    },
+    {
+      "description": "全文搜索",
+      "name": "搜索"
+    },
+    {
+      "description": "从模板创建",
+      "name": "模板"
+    }
+  ]
+}
