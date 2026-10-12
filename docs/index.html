@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>幕布 (mubu.com) 内部 API 文档</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+  <style>
+    body { margin: 0; }
+    .swagger-ui .topbar { display: none; }
+    .header { background: #1a1a2e; color: #fff; padding: 20px 40px; }
+    .header h1 { margin: 0 0 8px; font-size: 22px; }
+    .header p { margin: 0; opacity: .7; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>幕布 (mubu.com) 内部 API 文档</h1>
+    <p>逆向自 Web 端 / 桌面端 / 第三方项目 · 2026-10-12 · 幕布无公开 API，内部接口随时可能变更</p>
+  </div>
+  <div id="swagger-ui"></div>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    SwaggerUIBundle({
+      url: "./openapi.json",
+      dom_id: "#swagger-ui",
+      deepLinking: true,
+      presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+    });
+  </script>
+</body>
+</html>
